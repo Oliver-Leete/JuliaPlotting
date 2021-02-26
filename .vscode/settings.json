@@ -1,0 +1,12 @@
+{
+  "ltex.ignoreRuleInSentence": [
+    {
+      "rule": "OXFORD_SPELLING_ISE_VERBS",
+      "sentence": "^\\QGeneralise title substitutions  j\\E$"
+    },
+    {
+      "rule": "OXFORD_SPELLING_ISE_VERBS",
+      "sentence": "^\\QGeneralise for n number of runs\\E$"
+    }
+  ]
+}
