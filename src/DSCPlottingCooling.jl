@@ -15,8 +15,8 @@ function PlotDSCCoolingTemp!(seriesPath, temperature, runSpeed=0.0, binNum=1; kw
     DF = FilterCooling(DF, temperature)
     DF[:, 2] = DF[:,2] .- DF[end,2]
 
-    plot!(DF[1:binNum:end,5], (runSpeed == 0) ? DF[1:binNum:end,2] : (DF[1:binNum:end,2] / runSpeed),
-        xlabel="Temperature (°C)", ylabel=(runSpeed == 0) ? "Heat Flow (mW)" : "Energy (J/(°C/min))",
+    plot!(DF[1:binNum:end,5], (runSpeed == 0) ? DF[1:binNum:end,2] : (DF[1:binNum:end,2] * (runSpeed*60)),
+        xlabel="Temperature (°C)", ylabel=(runSpeed == 0) ? "Heat Flow (mW)" : "Energy (J/°C)",
         size=plotSize; kwargs...)
 end
 

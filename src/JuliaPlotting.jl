@@ -5,12 +5,13 @@ module JuliaPlotting
   import Plots
   import Dates
   import PGFPlotsX
+	import Pipe: @pipe
 
   export PlotDSCProfile!, PlotDSC!, PlotDSCTime!
   export PlotDSCHeatingTemp!, PlotDSCHeatingTime!
   export PlotDSCCoolingTemp!, PlotDSCCoolingTime!
   export PlotTensileStressStrain!, PlotStressBar!
-	export preMeltGradiant, flaternMelt
+	export preMeltGradiant, flaternMelt, flaternMeltAdjust
 
   export Thermocouple_Plot
   export Tensile_StressStrain
