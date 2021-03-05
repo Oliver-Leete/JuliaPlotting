@@ -23,7 +23,10 @@ Adds a series of heatflow vs temperature to the current active plot using data f
 """
 function PlotDSC!(seriesPath, binNum=10; kwargs...)
   DF = CSV.File(seriesPath) |> DataFrame
+	PlotDSC!(DF, binNum; kwargs...)
+end
 
+function PlotDSC!(DF::DataFrame, binNum=10; kwargs...)
   filter!(row -> row[5] > 35, DF)
   DF[:, 2] = DF[:,2] .- DF[1,2]
 

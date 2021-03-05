@@ -17,8 +17,18 @@ end
 
 function flaternMeltAdjust(seriesPath::String, mass, temp::Tuple=(30,150))
   return @pipe CSV.File(seriesPath) |>
-  DataFrame |>
-  fixYoSpeed |>
+	DataFrame(_) |>
+  fixYoSpeed(_) |>
+  fixYoHeatflow(_) |>
+  FilterHeating(_, temp[1]) |>
+  flaternMelt(_, temp) |>
+  runSpeedAdjust(_, temp) |>
+  runMassAdjust(_, mass)
+end
+
+function flaternMeltAdjust(DF::DataFrame, mass, temp::Tuple=(30,150))
+  return @pipe DF |>
+  fixYoSpeed(_) |>
   FilterHeating(_, temp[1]) |>
   flaternMelt(_, temp) |>
   runSpeedAdjust(_, temp) |>
@@ -26,11 +36,12 @@ function flaternMeltAdjust(seriesPath::String, mass, temp::Tuple=(30,150))
 end
 
 function runSpeedAdjust(DF::DataFrame, temperature::Tuple = (30, 150))
-  DF[:,2] = DF[:,2].*preMeltSpeed(DF, temperature)
+  DF[:,2] = DF[:,2]./preMeltSpeed(DF, temperature)
   return DF
 end
 
 function preMeltSpeed(DF::DataFrame, temperature::Tuple)
+  return 10/60
   temp1 = findfirst(x -> x>temperature[1], DF[:,5])
   temp2 = findfirst(x -> x>temperature[2], DF[:,5])
   return speed = (temperature[2] - temperature[1])/(DF[temp2, 1] - DF[temp1, 1])
@@ -43,5 +54,11 @@ end
 
 function fixYoSpeed(DF::DataFrame)
   DF[:,1] = DF[:,1] .* 60
+  return DF
+end
+
+function fixYoHeatflow(DF::DataFrame)
+  DF[:,2] = DF[:,2] ./ 1000000
+  DF[:,3] = DF[:,3] ./ 1000000
   return DF
 end
