@@ -6,6 +6,7 @@ module JuliaPlotting
   import Dates
   import PGFPlotsX
 	import Pipe: @pipe
+	import NumericalIntegration
 
   export PlotDSCProfile!, PlotDSC!, PlotDSCTime!
   export PlotDSCHeatingTemp!, PlotDSCHeatingTime!

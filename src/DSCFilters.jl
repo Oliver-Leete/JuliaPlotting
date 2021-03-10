@@ -25,9 +25,9 @@ end
 """
   FilterCooling(DF::DataFrame, temperature)
 
-Filters the dataframe between two temperatures given by the temperature variable. If a  tuple is given then the first value is taken as the starting value of the range and the second the end of the range. If a single value is given then it is taken as the start of the range and the maximum temperature is taken as the end of the range.
+Filters the dataframe between two temperatures given by the temperature variable. If a  tuple is given then the first value is taken as the starting value of the range and the second the end of the range. If a single value is given then it is taken as the end of the range and the maximum temperature is taken as the start of the range.
 
-Unlike FilterHeating(), this uses the lastirst instance of the values, so it is useful for the cooling range of the DSC curve.
+Unlike FilterHeating(), this uses the last instance of the values, so it is useful for the cooling range of the DSC curve.
 """
 function FilterCooling(DF::DataFrame, temperature::Number)
   first = findmax(DF[:,5])[2]
