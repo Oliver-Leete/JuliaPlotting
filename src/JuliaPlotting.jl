@@ -1,12 +1,12 @@
 module JuliaPlotting
 
-  import CSV
-  import DataFrames
-  import Plots
-  import Dates
-  import PGFPlotsX
-	import Pipe: @pipe
-	import NumericalIntegration
+  using CSV
+  using DataFrames
+  using Plots
+  using Dates
+  using PGFPlotsX
+	using NumericalIntegration
+	using Pipe: @pipe
 
   export PlotDSCProfile!, PlotDSC!, PlotDSCTime!
   export PlotDSCHeatingTemp!, PlotDSCHeatingTime!

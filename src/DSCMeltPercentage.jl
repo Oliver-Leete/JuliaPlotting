@@ -1,10 +1,10 @@
-function flaternMeltAdjust(seriesPath::String, mass, temp::Tuple=(30,150))
+function flaternMeltAdjust(seriesPath::String, mass, temp, intTemp)
   return @pipe CSV.File(seriesPath) |>
 	DataFrame(_) |>
-  flaternMeltAdjust(_, mass, temp)
+  flaternMeltAdjust(_, mass, temp, intTemp)
 end
 
-function flaternMeltAdjust(DF::DataFrame, mass, temp::Tuple=(30,150))
+function flaternMeltAdjust(DF::DataFrame, mass, temp, intTemp)
   return @pipe DF |>
   fixYoSpeed(_) |>
   fixYoHeatflow(_) |>
@@ -12,13 +12,20 @@ function flaternMeltAdjust(DF::DataFrame, mass, temp::Tuple=(30,150))
   flaternMelt(_, temp) |>
   runSpeedAdjust(_, temp) |>
   runMassAdjust(_, mass) |>
-	tempTntegrate(_, (160, 200))
+	FilterHeating(_, intTemp) |>
+	tempIntegrate(_) |>
+	DPMratio(_)
 end
 
-function tempTntegrate(DF::DataFrame, intTemp::Tuple)
-  temp1 = findfirst(x -> x>intTemp[1], DF[:,5])
-  temp2 = findfirst(x -> x>intTemp[2], DF[:,5])
-  return area = cumul_integrate(DF[temp1:temp2, 5], DF[temp1:temp2, 2])
+function DPMratio(DF::DataFrame)
+  maxEnergy = findmax(DF[:,9])[1]
+  insertcols!(DF, 10, (:DPMRatio => (DF[:,9]/maxEnergy)))
+  return DF
+end
+
+function tempIntegrate(DF::DataFrame)
+  insertcols!(DF, 9, (:Integral => cumul_integrate(DF[:,5], DF[:,2])))
+  return DF
 end
 
 function preMeltGradiant(DF::DataFrame, temperature::Tuple = (60, 120))
