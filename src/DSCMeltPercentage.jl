@@ -1,20 +1,20 @@
 function flaternMeltAdjust(seriesPath::String, mass, temp, intTemp)
-  return @pipe CSV.File(seriesPath) |>
-	DataFrame(_) |>
-  flaternMeltAdjust(_, mass, temp, intTemp)
+  return CSV.File(seriesPath) |>
+  x -> DataFrame(x) |>
+  x -> flaternMeltAdjust(x, mass, temp, intTemp)
 end
 
 function flaternMeltAdjust(DF::DataFrame, mass, temp, intTemp)
-  return @pipe DF |>
-  fixYoSpeed(_) |>
-  fixYoHeatflow(_) |>
-  FilterHeating(_, temp[1]) |>
-  flaternMelt(_, temp) |>
-  runSpeedAdjust(_, temp) |>
-  runMassAdjust(_, mass) |>
-	FilterHeating(_, intTemp) |>
-	tempIntegrate(_) |>
-	DPMratio(_)
+  return DF |>
+  x -> fixYoSpeed(x) |>
+  x -> fixYoHeatflow(x) |>
+  x -> FilterHeating(x, temp[1]) |>
+  x -> flaternMelt(x, temp) |>
+  x -> runSpeedAdjust(x, temp) |>
+  x -> runMassAdjust(x, mass) |>
+  x -> FilterHeating(x, intTemp) |>
+  x -> tempIntegrate(x) |>
+  x -> DPMratio(x)
 end
 
 function DPMratio(DF::DataFrame)
