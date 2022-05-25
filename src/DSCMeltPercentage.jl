@@ -4,25 +4,25 @@ the file path of the CSV data.
 """
 function relativeMeltEnthalpy(seriesPath::String; kwargs...)
     return CSV.File(seriesPath) |>
-           x -> DataFrame(x) |>
-           x -> relativeMeltEnthalpy(x; kwargs...)
+        x -> DataFrame(x)       |>
+        x -> relativeMeltEnthalpy(x; kwargs...)
 end
 
 """
 Takes a raw dataframe and does all the corections needed to produce a relative
 melt enthalpy curve.
 """
-function relativeMeltEnthalpy(df::DataFrame; mass = 0.2, temp = (150, 170), intTemp = (150, 200))
-    return df |>
-           x -> correctUnits_Speed(x) |>
-           x -> correctUnits_Heatflow(x) |>
-           x -> FilterHeating(x, temp[1]) |>
-           x -> flaternMelt(x, temp) |>
-           x -> runSpeedAdjust(x, temp) |>
-           x -> runMassAdjust(x, mass) |>
-           x -> FilterHeating(x, intTemp) |>
-           x -> integrateHeatflow(x) |>
-           x -> DPMratio(x)
+function relativeMeltEnthalpy(df::DataFrame; mass=0.2, temp=(150, 170), intTemp=(150, 200))
+    return df                          |>
+        x -> correctUnits_Speed(x)     |>
+        x -> correctUnits_Heatflow(x)  |>
+        x -> FilterHeating(x, temp[1]) |>
+        x -> flaternMelt(x, temp)      |>
+        x -> runSpeedAdjust(x, temp)   |>
+        x -> runMassAdjust(x, mass)    |>
+        x -> FilterHeating(x, intTemp) |>
+        x -> integrateHeatflow(x)      |>
+        x -> DPMratio(x)
 end
 
 """
@@ -63,7 +63,7 @@ end
 
 """
 Inserts a column into the dataframe that contains the cumalative integral of
-the heatflow (the melt enthalpy).  
+the heatflow (the melt enthalpy).
 """
 function integrateHeatflow(df::DataFrame)
     insertcols!(df, ("integral" => cumul_integrate(df[!, "sampleTemp"], df[!, "meltHeat"])))
@@ -73,12 +73,12 @@ end
 """
 Finds the gradient of the heatflow curve in the temperature range given.
 """
-function calcGradMelt(df::DataFrame, temperature::Tuple = (60, 120))
+function calcGradMelt(df::DataFrame, temperature::Tuple=(60, 120))
     temp1 = findfirst(x -> x > temperature[1], df[!, "sampleTemp"])
     temp2 = findfirst(x -> x > temperature[2], df[!, "sampleTemp"])
     return (df[temp2, "unsubHF"] - df[temp1, "unsubHF"]) / (temperature[2] - temperature[1])
 end
-function calcGradCool(df::DataFrame, temperature::Tuple = (60, 120))
+function calcGradCool(df::DataFrame, temperature::Tuple=(60, 120))
     temp1 = findlast(x -> x > temperature[1], df[!, "sampleTemp"])
     temp2 = findlast(x -> x > temperature[2], df[!, "sampleTemp"])
     return (df[temp2, "unsubHF"] - df[temp1, "unsubHF"]) / (temperature[2] - temperature[1])
@@ -100,11 +100,26 @@ function flaternCool(df::DataFrame, temperature::Tuple)
     return df
 end
 
+sigmoidal(x, offset, height) = one(x) / (one(x) + exp(-(x * 20) + 10 + offset)) * height
+
+function calcSPHSig(df::DataFrame, preTemp::Tuple, postTemp::Real)
+    grad = calcGradMelt(df, preTemp)
+    temp1 = findfirst(x -> x > postTemp, df[!, "sampleTemp"])
+    height = df[postTemp, "unsubHF"] - temp1 * grad
+    offset = df[temp1, "unsubHF"] - df[temp1, "sampleTemp"] * grad
+    df[!, "sph"] = [ifelse(preTemp[2] < df[i, "sampleTemp"] < postTemp, offset + sigmoidal(df[i, "sampleTemp"], preTemp[1], height), df[i, "unsubHF"]) for i in 1:nrow(df)]
+    return df
+end
+
 function calcSPH(df::DataFrame, temperature::Tuple)
     gradient = calcGradMelt(df, temperature)
     temp1 = findlast(x -> x > temperature[1], df[!, "sampleTemp"])
     offset = df[temp1, "unsubHF"] - df[temp1, "sampleTemp"] * gradient
-    df[!, "sph"] = [ifelse(temperature[1] < df[i, "sampleTemp"] < temperature[2], offset + df[i, "sampleTemp"] * gradient, df[i, "unsubHF"]) for i in 1:nrow(df)]
+    df[!, "sph"] = [
+        ifelse(
+            temperature[1] < df[i, "sampleTemp"] < temperature[2],
+            offset + df[i, "sampleTemp"] * gradient, df[i, "unsubHF"]) for i in 1:nrow(df)
+    ]
     return df
 end
 
@@ -117,7 +132,7 @@ end
 Converts the y axis to Joules from Watts by dividing through by the rate of
 heating (run speed).
 """
-function runSpeedAdjust(df::DataFrame, temperature::Tuple = (30, 150))
+function runSpeedAdjust(df::DataFrame, temperature::Tuple=(30, 150))
     df[!, "unsubHF"] = df[!, "unsubHF"] ./ runSpeed(df, temperature)
     return df
 end
@@ -128,7 +143,7 @@ end
 
 """
 Calculate the speed in degrees per second for the run in the temperature range
-given (uses the melting portion of the curve) 
+given (uses the melting portion of the curve)
 """
 function runSpeed(df::DataFrame, temperature::Tuple)
     temp1 = findfirst(x -> x > temperature[1], df[!, "sampleTemp"])
