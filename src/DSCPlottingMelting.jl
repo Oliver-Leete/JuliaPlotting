@@ -1,7 +1,3 @@
-using CSV
-using DataFrames
-using Plots
-
 """
     PlotDSCHeatingTemp!(seriesPath, temperature, runSpeed = 0.0)
 

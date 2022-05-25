@@ -1,7 +1,3 @@
-using CSV
-using DataFrames
-using Plots
-
 """
     DSC_HeatflowTempTimePlot!(seriesPath, timeRange, heatRange, tempRange)
 
