@@ -100,17 +100,6 @@ function flaternCool(df::DataFrame, temperature::Tuple)
     return df
 end
 
-sigmoidal(x, offset, height) = one(x) / (one(x) + exp(-(x * 20) + 10 + offset)) * height
-
-function calcSPHSig(df::DataFrame, preTemp::Tuple, postTemp::Real)
-    grad = calcGradMelt(df, preTemp)
-    temp1 = findfirst(x -> x > postTemp, df[!, "sampleTemp"])
-    height = df[postTemp, "unsubHF"] - temp1 * grad
-    offset = df[temp1, "unsubHF"] - df[temp1, "sampleTemp"] * grad
-    df[!, "sph"] = [ifelse(preTemp[2] < df[i, "sampleTemp"] < postTemp, offset + sigmoidal(df[i, "sampleTemp"], preTemp[1], height), df[i, "unsubHF"]) for i in 1:nrow(df)]
-    return df
-end
-
 function calcSPH(df::DataFrame, temperature::Tuple)
     gradient = calcGradMelt(df, temperature)
     temp1 = findlast(x -> x > temperature[1], df[!, "sampleTemp"])
