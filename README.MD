@@ -1,30 +1,3 @@
-# Repository for Julia Plotting Scripts
+# DSC Data Processing and Plotting
 
-## PA6-CF Plotter
-
-### Features
-* Plot stress strain curve of tensile data from CSVs
-
-
-### Planned Features
-* Replace file names with expanded human-readable names
-* Plot bar plots of average Ultimate σ, Ultimate ε and E with standard deviation
-* Generalize for n number of runs
-* Generalize title substitutions
-
-## Thermocouple Plotter
-
-### Features
-
-### Planned Features
-
-## DSC Plotter
-
-### Features
-* Plotting of the full DSC curve
-* Plotting of heat flow vs time
-* Plotting of temperature vs time
-* Plotting of the DSC curve at the melt range
-*
-
-### Planned Features
+I'd not reccomend using this, I'm only making it public to make it easier to reproduce my processing of DSC data for my PhD Thesis. It is just a small package with some functions for processing DSC data in the specific format that the DSC in the APSL lab exports CSVs in. I'm pretty sure that a lot of the code is dead code that isn't actually used anywhere, and the stuff that isn't dead code is still probably not well written.
