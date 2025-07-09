@@ -44,10 +44,13 @@ Sets the heatflow at the start of the range (or at the temperature given) to be 
 the heatflow. The same as zeroMelt, but uses the last value for temperature, for use in the cooling
 region of DSC plots.
 """
-zeroCool(df::DataFrame) = zeroMelt(df)
+function zeroCool(df::DataFrame)
+    df[!, "unsubHF"] = df[!, "unsubHF"] .- df[end, "unsubHF"]
+    return df
+end
 
 function zeroCool(df::DataFrame, temp)
-    temp1 = findlast(x -> x > temp, df[!, "sampleTemp"])
+    temp1 = findfirst(x -> x < temp, df[!, "sampleTemp"])
     df[!, "unsubHF"] = df[!, "unsubHF"] .- df[temp1, "unsubHF"]
     return df
 end
@@ -62,11 +65,36 @@ function DPMratio(df::DataFrame)
 end
 
 """
+Inserts a column into the dataframe that contains a normalised recrystallization enthalpy.
+"""
+function DPMratioCool(df::DataFrame, meltState)
+    maxEnergy = findmin(df[!, "integral"])[1]
+    ratio = (meltState * ( df[!, "integral"] / maxEnergy) )
+    insertcols!(df, ("DPMRatio" => ratio))
+    return df
+end
+
+"""
 Inserts a column into the dataframe that contains the cumalative integral of
 the heatflow (the melt enthalpy).
 """
 function integrateHeatflow(df::DataFrame)
     insertcols!(df, ("integral" => cumul_integrate(df[!, "sampleTemp"], df[!, "meltHeat"])))
+    return df
+end
+
+"""
+Inserts a column into the dataframe that contains the reversed cumalative integral of
+the heatflow (the recrystallization enthalpy).
+"""
+function integrateCoolflow(df::DataFrame)
+    cumul = reverse(
+        cumul_integrate(
+            reverse(df[!, "sampleTemp"]),
+            reverse(df[!, "meltHeat"])
+        )
+    )
+    insertcols!(df, ("integral" => cumul))
     return df
 end
 
@@ -112,6 +140,18 @@ function calcSPH(df::DataFrame, temperature::Tuple)
     return df
 end
 
+function calcSPHCool(df::DataFrame, temperature::Tuple)
+    gradient = calcGradCool(df, temperature)
+    temp1 = findlast(x -> x > temperature[1], df[!, "sampleTemp"])
+    offset = df[temp1, "unsubHF"] - df[temp1, "sampleTemp"] * gradient
+    df[!, "sph"] = [
+        ifelse(
+            temperature[1] < df[i, "sampleTemp"] < temperature[2],
+            offset + df[i, "sampleTemp"] * gradient, df[i, "unsubHF"]) for i in 1:nrow(df)
+    ]
+    return df
+end
+
 function subFlatMelt(df::DataFrame)
     df[!, "meltHeat"] = df[!, "unsubHF"] - df[!, "sph"]
     return df
@@ -141,10 +181,11 @@ function runSpeed(df::DataFrame, temperature::Tuple)
 end
 
 """
-Converts the units of the mass from milligrams (used in the machine software) to grams.
+Converts the unsubHF to a specific heatflow.
 """
 function runMassAdjust(df::DataFrame, mass)
-    df[!, "unsubHF"] = df[!, "unsubHF"] ./ (mass / 1000)
+    mass_in_grams = mass/1000
+    df[!, "unsubHF"] = df[!, "unsubHF"] ./ mass_in_grams
     return df
 end
 

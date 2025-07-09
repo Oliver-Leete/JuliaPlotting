@@ -6,17 +6,17 @@ Filters the dataframe between two temperatures given by the temperature variable
 Unlike FilterCooling(), this uses the first instance of the values, so it is useful for the heating range of the DSC curve.
 """
 function FilterHeating(df::DataFrame, temperature::Number)
-  first = findfirst(x -> x>temperature, df[!, "sampleTemp"])
-  last = findmax(df[!, "sampleTemp"])[2]
-  df = df[first:last,:]
-  return df
+    first = findfirst(x -> x > temperature, df[!, "sampleTemp"])
+    last = findmax(df[!, "sampleTemp"])[2]
+    df = df[first:last, :]
+    return df
 end
 
 function FilterHeating(df::DataFrame, temperature::Tuple)
-  first = findfirst(x -> x>temperature[1], df[!, "sampleTemp"])
-  last = findfirst(x -> x>temperature[2], df[!, "sampleTemp"])
-  df = df[first:last,:]
-  return df
+    first = findfirst(x -> x > temperature[1], df[!, "sampleTemp"])
+    last = findfirst(x -> x > temperature[2], df[!, "sampleTemp"])
+    df = df[first:last, :]
+    return df
 end
 
 """
@@ -27,15 +27,22 @@ Filters the dataframe between two temperatures given by the temperature variable
 Unlike FilterHeating(), this uses the last instance of the values, so it is useful for the cooling range of the DSC curve.
 """
 function FilterCooling(df::DataFrame, temperature::Number)
-  first = findmax(df[!, "sampleTemp"])[2]
-  last = findlast(x -> x>temperature, df[!, "sampleTemp"])
-  df = df[first:last,:]
-  return df
+    first = findmax(df[!, "sampleTemp"])[2]
+    last = findlast(x -> x > temperature, df[!, "sampleTemp"])
+    df = df[first:last, :]
+    return df
 end
 
 function FilterCooling(df::DataFrame, temperature::Tuple)
-  first = findlast(x -> x>temperature[2], df[!, "sampleTemp"])
-  last = findlast(x -> x>temperature[1], df[!, "sampleTemp"])
-  df = df[first:last,:]
-  return df
+    first = findlast(x -> x > temperature[2], df[!, "sampleTemp"])
+    last = findlast(x -> x > temperature[1], df[!, "sampleTemp"])
+    df = df[first:last, :]
+    return df
+end
+
+function FilterAll(df::DataFrame, temperature::Number)
+    first = findfirst(x -> x > temperature, df[!, "sampleTemp"])
+    last = findlast(x -> x > temperature, df[!, "sampleTemp"])
+    df = df[first:last, :]
+    return df
 end

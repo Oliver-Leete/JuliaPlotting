@@ -4,30 +4,37 @@ module JuliaPlotting
   using DataFrames
   using Plots
   using Dates
-  using PGFPlotsX
+  # using PGFPlotsX
   using NumericalIntegration
+  using LaTeXStrings
 
-  export PlotDSCProfile!, PlotDSC!, PlotDSCTime!
   # export PlotDSCHeatingTemp!, PlotDSCHeatingTime!
   # export PlotDSCCoolingTemp!, PlotDSCCoolingTime!
   export PlotTensileStressStrain!, PlotStressBar!
   # export preMeltGradiant, flaternMeltAdjust
 
+  export integrateCoolflow
   export integrateHeatflow
   export DPMratio
+  export DPMratioCool
   export flaternMelt
   export flaternCool
   export pathToDF
   export keepNth
   export plotSize
+  export square
   export correctUnits_Speed
   export correctUnits_Heatflow
   export runMassAdjust
   export FilterHeating
   export FilterCooling
+  export FilterAll
   export zeroMelt
   export zeroCool
   export runSpeedAdjust
+  export calcSPH
+  export calcSPHCool
+  export subFlatMelt
 
   export profilePlotter
   export regPlotter
@@ -39,6 +46,11 @@ module JuliaPlotting
   export heatOfMeltPlotter
   export energyPlotter
   export meltStatePlotter
+  export unsubCoolPlotter
+  export spheatCoolPlotter
+  export heatOfMeltCoolPlotter
+  export energyCoolPlotter
+  export meltStateCoolPlotter
 
   export Thermocouple_Plot
   # export Tensile_StressStrain
@@ -55,5 +67,6 @@ module JuliaPlotting
   include("TensilePlotting.jl")
   include("ThermocouplePlotting.jl")
 
-  plotSize = (720,400)
+  plotSize = (600,300)
+  square = (300, 300)
 end

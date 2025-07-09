@@ -17,7 +17,6 @@ function PlotTensileStressStrain!(path, σ_drop = 0.3; kwargs...)
     if σ⃗[line+1] <= σ⃗[line] - σ_drop
       ε⃗ = ε⃗[1:line+1]
       σ⃗ = σ⃗[1:line+1]
-      break
     end
   end
 
